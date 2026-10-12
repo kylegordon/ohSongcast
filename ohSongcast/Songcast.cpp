@@ -4,6 +4,7 @@
 
 #include <OpenHome/Private/Debug.h>
 #include <OpenHome/Private/Ascii.h>
+#include <OpenHome/Private/TIpAddressUtils.h>
 #include "../Debug.h"
 
 #include <algorithm>
@@ -12,12 +13,21 @@ using namespace OpenHome;
 using namespace OpenHome::Net;
 using namespace OpenHome::Av;
 
+// The C interface carries IPv4 addresses as network order uint32_t
+
+static TIpAddress IpAddressV4(uint32_t aAddress)
+{
+    TIpAddress address = {};
+    address.iFamily = kFamilyV4;
+    address.iV4 = aAddress;
+    return address;
+}
 
 // C interface
 
 uint32_t STDCALL SongcastSubnet(THandle aSongcast)
 {
-	return (((Songcast*)aSongcast)->GetSubnet());
+	return (((Songcast*)aSongcast)->GetSubnet().iV4);
 }
 
 uint32_t STDCALL SongcastChannel(THandle aSongcast)
@@ -52,7 +62,7 @@ uint32_t STDCALL SongcastPreset(THandle aSongcast)
 
 void STDCALL SongcastSetSubnet(THandle aSongcast, uint32_t aValue)
 {
-	((Songcast*)aSongcast)->SetSubnet(aValue);
+	((Songcast*)aSongcast)->SetSubnet(IpAddressV4(aValue));
 }
 
 void STDCALL SongcastSetChannel(THandle aSongcast, uint32_t aValue)
@@ -132,7 +142,7 @@ EReceiverStatus STDCALL ReceiverStatus(THandle aReceiver)
 
 uint32_t STDCALL ReceiverIpAddress(THandle aReceiver)
 {
-	return (((Receiver*)aReceiver)->IpAddress());
+	return (((Receiver*)aReceiver)->IpAddress().iV4);
 }
 
 bool STDCALL ReceiverHasVolumeControl(THandle aReceiver)
@@ -202,7 +212,7 @@ void STDCALL ReceiverRemoveRef(THandle aReceiver)
 
 uint32_t STDCALL SubnetAddress(THandle aSubnet)
 {
-	return (((Subnet*)aSubnet)->Address());
+	return (((Subnet*)aSubnet)->Address().iV4);
 }
 
 const char* STDCALL SubnetAdapterName(THandle aSubnet)
@@ -357,7 +367,7 @@ Subnet::Subnet(TIpAddress aSubnet)
 TBool Subnet::IsAttachedTo(NetworkAdapter& aAdapter)
 {
 	if (iAdapter != 0) {
-		return (iAdapter->Address() == aAdapter.Address());
+		return TIpAddressUtils::Equals(iAdapter->Address(), aAdapter.Address());
 	}
 	return (false);
 }
@@ -369,7 +379,7 @@ void Subnet::Attach(NetworkAdapter& aAdapter)
 	}
 	iAdapter = &aAdapter;
 	iAdapter->AddRef("Songcast");
-    ASSERT(iAdapter->Subnet() == iSubnet);
+    ASSERT(TIpAddressUtils::Equals(iAdapter->Subnet(), iSubnet));
 }
 
 void Subnet::Detach()
@@ -395,7 +405,7 @@ TIpAddress Subnet::AdapterAddress() const
 		return (iAdapter->Address());
 	}
 
-	return (0);
+	return (TIpAddress());
 }
 
 const TChar* Subnet::AdapterName() const
@@ -428,8 +438,8 @@ Subnet::~Subnet()
     
 // Songcast
 
-Songcast::Songcast(TIpAddress aSubnet, TUint aChannel, TUint aTtl, TUint aLatency, TBool aMulticast, TBool aEnabled, TUint aPreset, ReceiverCallback aReceiverCallback, void* aReceiverPtr, SubnetCallback aSubnetCallback, void* aSubnetPtr, ConfigurationChangedCallback aConfigurationChangedCallback, void* aConfigurationChangedPtr, MessageCallback aFatalErrorCallback, void* aFatalErrorPtr, MessageCallback aLogOutputCallback, void* aLogOutputPtr, const Brx& aComputer, IOhmSenderDriver* aDriver, const char* aManufacturer, const char* aManufacturerUrl, const char* aModelUrl, const Brx& aImage, const Brx& aMimeType)
-	: iSubnet(aSubnet)
+Songcast::Songcast(TUint aSubnet, TUint aChannel, TUint aTtl, TUint aLatency, TBool aMulticast, TBool aEnabled, TUint aPreset, ReceiverCallback aReceiverCallback, void* aReceiverPtr, SubnetCallback aSubnetCallback, void* aSubnetPtr, ConfigurationChangedCallback aConfigurationChangedCallback, void* aConfigurationChangedPtr, MessageCallback aFatalErrorCallback, void* aFatalErrorPtr, MessageCallback aLogOutputCallback, void* aLogOutputPtr, const Brx& aComputer, IOhmSenderDriver* aDriver, const char* aManufacturer, const char* aManufacturerUrl, const char* aModelUrl, const Brx& aImage, const Brx& aMimeType)
+	: iSubnet(IpAddressV4(aSubnet))
 	, iChannel(aChannel)
 	, iTtl(aTtl)
 	, iLatency(aLatency)
@@ -447,7 +457,7 @@ Songcast::Songcast(TIpAddress aSubnet, TUint aChannel, TUint aTtl, TUint aLatenc
 	, iLogOutputCallback(aLogOutputCallback)
 	, iLogOutputPtr(aLogOutputPtr)
 	, iClosing(false)
-	, iAdapter(0)
+	, iAdapter()
 	, iSender(0)
     , iDriver(aDriver)
 {
@@ -587,11 +597,11 @@ public:
     SubnetFinder(TIpAddress aSubnet) : iSubnet(aSubnet) {}
 
     bool operator()(NetworkAdapter* aAdapter) const {
-        return (aAdapter->Subnet() == iSubnet);
+        return TIpAddressUtils::Equals(aAdapter->Subnet(), iSubnet);
     }
 
     bool operator()(Subnet* aSubnet) const {
-        return (aSubnet->Address() == iSubnet);
+        return TIpAddressUtils::Equals(aSubnet->Address(), iSubnet);
     }
 
 private:
@@ -671,7 +681,7 @@ void Songcast::SubnetListChanged()
 
 		// Not found - make a dummy subnet entry to represent our current subnet (unless 0)
 
-		if (iSubnet != 0)
+		if (!TIpAddressUtils::IsZero(iSubnet))
 		{
 			Subnet* subnet = new Subnet(iSubnet);
 			iSubnetList.push_back(subnet);
@@ -692,7 +702,7 @@ TBool Songcast::UpdateAdapter()
         Subnet* subnet = *it;
         TIpAddress adapter = subnet->AdapterAddress();
 
-        if (iAdapter != adapter) {
+        if (!TIpAddressUtils::Equals(iAdapter, adapter)) {
             iAdapter = adapter;
 
             if (iSender != 0) {
@@ -764,7 +774,7 @@ void Songcast::SetSubnet(TIpAddress aValue)
 {
 	iMutex->Wait();
 
-	if (iSubnet == aValue || iClosing) {
+	if (TIpAddressUtils::Equals(iSubnet, aValue) || iClosing) {
 	    iMutex->Signal();
 		return;
 	}

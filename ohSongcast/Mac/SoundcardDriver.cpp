@@ -487,9 +487,9 @@ OhmSenderDriverMac::Driver::~Driver()
 void OhmSenderDriverMac::Driver::SetEndpoint(const Endpoint& aEndpoint, TIpAddress aAdapter)
 {
     uint64_t args[3];
-    args[0] = aEndpoint.Address();
+    args[0] = aEndpoint.Address().iV4;
     args[1] = aEndpoint.Port();
-    args[2] = aAdapter;
+    args[2] = aAdapter.iV4;
     IOConnectCallScalarMethod(iHandle, eSetEndpoint, args, 3, 0, 0);
 }
 

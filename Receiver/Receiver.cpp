@@ -189,7 +189,7 @@ int CDECL main(int aArgc, char* aArgv[])
     TIpAddress adapter = (*subnetList)[optionAdapter.Value()]->Address();
     Library::DestroySubnetList(subnetList);
 
-    printf("Using subnet %d.%d.%d.%d\n", subnet&0xff, (subnet>>8)&0xff, (subnet>>16)&0xff, (subnet>>24)&0xff);
+    printf("Using subnet %d.%d.%d.%d\n", subnet.iV4&0xff, (subnet.iV4>>8)&0xff, (subnet.iV4>>16)&0xff, (subnet.iV4>>24)&0xff);
 
     TUint ttl = optionTtl.Value();
 	Brhz uri(optionUri.Value());

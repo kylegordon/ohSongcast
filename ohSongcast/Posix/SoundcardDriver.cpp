@@ -52,7 +52,7 @@ void OhmSenderDriverPosix::SetEnabled(TBool aValue)
 
 void OhmSenderDriverPosix::SetEndpoint(const Endpoint& aEndpoint, TIpAddress aAdapter)
 {
-    printf("OhmSenderDriverPosix: Endpoint %8x:%d, Adapter %8x\n", aEndpoint.Address(), aEndpoint.Port(), aAdapter);
+    printf("OhmSenderDriverPosix: Endpoint %8x:%d, Adapter %8x\n", aEndpoint.Address().iV4, aEndpoint.Port(), aAdapter.iV4);
 }
 
 void OhmSenderDriverPosix::SetActive(TBool aValue)

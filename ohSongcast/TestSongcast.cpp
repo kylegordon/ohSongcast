@@ -109,7 +109,7 @@ void STDCALL loggerReceiver(void* /* aPtr */, ECallbackType aType, THandle aRece
 
 void STDCALL loggerSubnet(void* /* aPtr */, ECallbackType aType, THandle aSubnet)
 {
-	TIpAddress address = SubnetAddress(aSubnet);
+	uint32_t address = SubnetAddress(aSubnet);
 	const char* name = SubnetAdapterName(aSubnet);
 
 	switch (aType) {
@@ -169,7 +169,7 @@ int CDECL main(int aArgc, char* aArgv[])
     TBool disabled = false;
     TUint preset = 99;
 
-	THandle Songcast = SongcastCreate("av.openhome.org", subnet, channel, ttl, latency, multicast, !disabled, preset, loggerReceiver, 0, loggerSubnet, 0, loggerConfigurationChanged, 0, NULL, 0, NULL, 0, "OpenHome", "http://www.openhome.org", "http://www.openhome.org", icon_png, icon_png_len, "image/png");
+	THandle Songcast = SongcastCreate("av.openhome.org", subnet.iV4, channel, ttl, latency, multicast, !disabled, preset, loggerReceiver, 0, loggerSubnet, 0, loggerConfigurationChanged, 0, NULL, 0, NULL, 0, "OpenHome", "http://www.openhome.org", "http://www.openhome.org", icon_png, icon_png_len, "image/png");
 
 	if (Songcast == 0) {
 		printf("Songcast error\n");

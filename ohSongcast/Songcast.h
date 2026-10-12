@@ -177,7 +177,7 @@ public:
 	static const TUint kMaxUdnBytes = 200;
 
 public:
-    Songcast(TIpAddress aSubnet, TUint aChannel, TUint aTtl, TUint aLatency, TBool aMulticast, TBool aEnabled, TUint aPreset, ReceiverCallback aReceiverCallback, void* aReceiverPtr, SubnetCallback aSubnetCallback, void* aSubnetPtr, ConfigurationChangedCallback aConfigurationChangedCallback, void* aConfigurationChangedPtr, MessageCallback aFatalErrorCallback, void* aFatalErrorPtr, MessageCallback aLogOutputCallback, void* aLogOutputPtr, const Brx& aComputer, IOhmSenderDriver* aDriver, const char* aManufacturer, const char* aManufacturerUrl, const char* aModelUrl, const Brx& aImage, const Brx& aMimeType);
+    Songcast(TUint aSubnet, TUint aChannel, TUint aTtl, TUint aLatency, TBool aMulticast, TBool aEnabled, TUint aPreset, ReceiverCallback aReceiverCallback, void* aReceiverPtr, SubnetCallback aSubnetCallback, void* aSubnetPtr, ConfigurationChangedCallback aConfigurationChangedCallback, void* aConfigurationChangedPtr, MessageCallback aFatalErrorCallback, void* aFatalErrorPtr, MessageCallback aLogOutputCallback, void* aLogOutputPtr, const Brx& aComputer, IOhmSenderDriver* aDriver, const char* aManufacturer, const char* aManufacturerUrl, const char* aModelUrl, const Brx& aImage, const Brx& aMimeType);
 
 	TIpAddress GetSubnet();
 	TUint GetChannel();

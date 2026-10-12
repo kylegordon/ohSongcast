@@ -332,7 +332,7 @@ int CDECL main(int aArgc, char* aArgv[])
     printf ("adapter list:\n");
     for (unsigned i=0; i<subnetList->size(); ++i) {
 		TIpAddress addr = (*subnetList)[i]->Address();
-		printf ("  %d: %d.%d.%d.%d\n", i, addr&0xff, (addr>>8)&0xff, (addr>>16)&0xff, (addr>>24)&0xff);
+		printf ("  %d: %d.%d.%d.%d\n", i, addr.iV4&0xff, (addr.iV4>>8)&0xff, (addr.iV4>>16)&0xff, (addr.iV4>>24)&0xff);
     }
     if (subnetList->size() <= optionAdapter.Value()) {
 		printf ("ERROR: adapter %d doesn't exist\n", optionAdapter.Value());
@@ -344,7 +344,7 @@ int CDECL main(int aArgc, char* aArgv[])
     Library::DestroySubnetList(subnetList);
     lib->SetCurrentSubnet(subnet);
 
-    printf("using subnet %d.%d.%d.%d\n", subnet&0xff, (subnet>>8)&0xff, (subnet>>16)&0xff, (subnet>>24)&0xff);
+    printf("using subnet %d.%d.%d.%d\n", subnet.iV4&0xff, (subnet.iV4>>8)&0xff, (subnet.iV4>>16)&0xff, (subnet.iV4>>24)&0xff);
 
 	Brhz file(optionFile.Value());
     

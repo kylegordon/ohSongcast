@@ -547,9 +547,9 @@ void OhmSenderDriverWindows::SetEndpoint(const Endpoint& aEndpoint, TIpAddress a
 
 	ULONG* ptr = (ULONG*)buffer;
 	
-	*ptr++ = Arch::BigEndian4(aEndpoint.Address());
+	*ptr++ = Arch::BigEndian4(aEndpoint.Address().iV4);
 	*ptr++ = aEndpoint.Port();
-	*ptr++ = Arch::BigEndian4(aAdapter);
+	*ptr++ = Arch::BigEndian4(aAdapter.iV4);
 
     DWORD bytes;
 
