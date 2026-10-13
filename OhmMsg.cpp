@@ -504,7 +504,7 @@ OhmMsg& OhmMsgFactory::Create(IReader& aReader, const OhmHeader& aHeader)
 		ASSERTS();
 	}
 
-	return (*(OhmMsg*)0);
+	THROW(AssertionFailed);
 }
 
 OhmMsgAudio& OhmMsgFactory::CreateAudio(IReader& aReader, const OhmHeader& aHeader)
