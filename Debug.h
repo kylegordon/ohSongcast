@@ -7,6 +7,7 @@ namespace OpenHome {
 
 #define kTopology    kApplication0
 #define kMedia       kApplication1
+#define kTrace       kApplication2
 
 } // namespace OpenHome
 
